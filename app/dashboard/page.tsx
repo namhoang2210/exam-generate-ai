@@ -1,74 +1,104 @@
 import { createClient } from "@/lib/supabase/server"
 import Link from "next/link"
-import { FileUp, Search } from "lucide-react"
+import { FileUp, Search, PlusCircle, CalendarIcon, MoreHorizontal } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Button, buttonVariants } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
 
 export default async function DashboardPage() {
   const supabase = await createClient()
   
-  // Fetch recent uploaded exams
   const { data: exams, error } = await supabase
     .from("exams")
     .select("*, exam_blueprints(id, generated_exams(id, status))")
     .order("created_at", { ascending: false })
     .limit(5)
 
+  // Đếm sơ bộ số lượng đề đã sinh từ blueprints của user
+  // Đây là ví dụ truy vấn thủ công, thực tế có thể cần aggregate sum
+  let generatedCount = 0;
+  exams?.forEach(ex => {
+    ex.exam_blueprints?.forEach((bp: any) => {
+      generatedCount += bp.generated_exams?.length || 0;
+    })
+  });
+
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Tổng quan hệ thống</h1>
-        <p className="text-gray-500 mt-2">Theo dõi các đề thi Tiếng Anh bạn đã upload và tạo mới.</p>
+        <p className="text-muted-foreground mt-2">Theo dõi các đề thi Tiếng Anh bạn đã upload và tạo mới qua AI.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
-          <div className="flex flex-row items-center justify-between pb-2">
-            <h3 className="tracking-tight text-sm font-medium">Tổng Đề Tải Lên</h3>
-            <FileUp className="h-4 w-4 text-gray-500" />
-          </div>
-          <div className="text-2xl font-bold">{exams?.length || 0}</div>
-        </div>
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
-          <div className="flex flex-row items-center justify-between pb-2">
-            <h3 className="tracking-tight text-sm font-medium">Đề Đã Generate</h3>
-            <Search className="h-4 w-4 text-gray-500" />
-          </div>
-          <div className="text-2xl font-bold">0</div>
-        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="tracking-tight text-sm font-medium">Tổng Đề Tải Lên</CardTitle>
+            <FileUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{exams?.length || 0}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="tracking-tight text-sm font-medium">Đề Đã Generate</CardTitle>
+            <Search className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{generatedCount}</div>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold tracking-tight">Đề tải lên gần đây</h2>
-          <Link href="/dashboard/upload" className="text-sm rounded-md bg-blue-600 text-white px-4 py-2 hover:bg-blue-700 font-medium">
+          <Link href="/dashboard/upload" className={cn(buttonVariants({ size: "sm" }), "gap-2")}>
+            <PlusCircle className="size-4" />
             Upload Đề Mới
           </Link>
         </div>
         
-        <div className="rounded-xl border bg-white overflow-hidden">
-          {!exams || exams.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              Chưa có đề thi nào trong hệ thống.
-            </div>
-          ) : (
-            <div className="divide-y">
-              {exams.map((exam) => (
-                <div key={exam.id} className="p-4 flex items-center justify-between hover:bg-gray-50">
-                  <div>
-                    <h4 className="font-medium text-gray-900">{exam.title}</h4>
-                    <p className="text-sm text-gray-500">
-                      Khối {exam.grade_level} • {new Date(exam.created_at).toLocaleDateString("vi-VN")}
-                    </p>
+        <Card>
+          <div className="divide-y overflow-hidden rounded-xl bg-background">
+            {!exams || exams.length === 0 ? (
+              <div className="flex h-[200px] flex-col items-center justify-center text-center">
+                 <div className="flex size-12 items-center justify-center rounded-full bg-muted mb-4">
+                   <FileUp className="size-6 text-muted-foreground" />
+                 </div>
+                 <h3 className="font-semibold text-lg">Chưa có dữ liệu</h3>
+                 <p className="text-sm text-muted-foreground">Tải lên đề mẫu đầu tiên của bạn để AI phân tích.</p>
+              </div>
+            ) : (
+                exams.map((exam) => (
+                  <div key={exam.id} className="p-4 sm:px-6 flex items-center justify-between hover:bg-muted/50 transition-colors">
+                    <div className="grid gap-1">
+                      <Link href={`/dashboard/exams`} className="font-semibold text-foreground hover:underline">
+                        {exam.title}
+                      </Link>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Badge variant="secondary" className="font-normal rounded-sm px-1.5 hidden sm:inline-flex">Khối {exam.grade_level}</Badge>
+                        <span className="flex items-center gap-1">
+                          <CalendarIcon className="size-3" />
+                         {new Date(exam.created_at).toLocaleDateString("vi-VN")}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <Badge variant={exam.status === 'analyzed' ? 'default' : 'outline'} className="capitalize">
+                        {exam.status}
+                      </Badge>
+                      <Button variant="ghost" size="icon" className="text-muted-foreground">
+                        <MoreHorizontal className="size-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div>
-                    <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-gray-100 text-gray-800">
-                      {exam.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                ))
+            )}
+          </div>
+        </Card>
       </div>
     </div>
   )

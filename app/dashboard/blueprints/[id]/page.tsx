@@ -1,6 +1,11 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { submitToQStash } from "./actions"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Layers, Zap } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 export default async function BlueprintReviewPage({ params }: { params: { id: string } }) {
   const supabase = await createClient()
@@ -17,61 +22,88 @@ export default async function BlueprintReviewPage({ params }: { params: { id: st
     .single()
 
   if (error || !bp) {
-    return <div className="p-8 text-center">Không tìm thấy bản thiết kế đề thi.</div>
+    return <div className="flex h-[200px] flex-col items-center justify-center text-center text-muted-foreground p-8">Không tìm thấy bản thiết kế đề thi.</div>
   }
 
   const blueprint = bp.structure_data
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Review Blueprint</h1>
-          <p className="text-gray-500 mt-1">
-            Đề gốc: <span className="font-medium text-gray-800">{bp.exams.title}</span> (Máy phân tích Khối {bp.exams.grade_level})
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Review Blueprint</h1>
+          <p className="text-muted-foreground mt-2">
+            Đề gốc: <span className="font-medium text-foreground">{bp.exams.title}</span> (Máy AI phân tích Khối {bp.exams.grade_level})
           </p>
         </div>
         
         <form action={submitToQStash}>
           <input type="hidden" name="blueprintId" value={bp.id} />
           <input type="hidden" name="gradeLevel" value={bp.exams.grade_level} />
-          <button
+          <Button
             type="submit"
-            className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            size="lg"
+            className={cn("w-full sm:w-auto gap-2")}
           >
+            <Zap className="size-4" />
             Duyệt & Generate Đề Mới (AI)
-          </button>
+          </Button>
         </form>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-xl border bg-white p-6 shadow-sm space-y-4">
-          <h3 className="font-semibold text-lg border-b pb-2">Thông tin chung</h3>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between border-b pb-2"><span className="text-gray-500">Mức độ difficulty</span><span className="font-medium">{blueprint.difficultyLevel}</span></div>
-            <div className="flex justify-between border-b pb-2"><span className="text-gray-500">Khối</span><span className="font-medium">{blueprint.targetGrade}</span></div>
-            <div className="flex justify-between border-b pb-2"><span className="text-gray-500">Mục đích</span><span className="font-medium">{blueprint.examPurpose}</span></div>
-            <div className="flex justify-between pb-2"><span className="text-gray-500">Tổng số câu hỏi</span><span className="font-medium">{blueprint.totalQuestions}</span></div>
-          </div>
-        </div>
+        <Card className="h-fit">
+          <CardHeader>
+             <CardTitle className="text-lg">Thông tin chung</CardTitle>
+             <CardDescription>Cấu trúc toàn cảnh của đề thi</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4 text-sm">
+            <div className="flex justify-between border-b pb-3"><span className="text-muted-foreground">Mức độ (Difficulty)</span><span className="font-medium bg-muted px-2 py-0.5 rounded">{blueprint.difficultyLevel}</span></div>
+            <div className="flex justify-between border-b pb-3"><span className="text-muted-foreground">Khối lớp (Grade)</span><span className="font-medium">{blueprint.targetGrade}</span></div>
+            <div className="flex justify-between border-b pb-3"><span className="text-muted-foreground">Mục đích (Purpose)</span><span className="font-medium">{blueprint.examPurpose}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">Tổng số câu hỏi</span><span className="font-bold text-lg leading-none">{blueprint.totalQuestions}</span></div>
+          </CardContent>
+        </Card>
 
-        <div className="rounded-xl border bg-white p-6 shadow-sm space-y-4 max-h-[500px] overflow-auto">
-           <h3 className="font-semibold text-lg border-b pb-2">Cấu trúc các phần (Sections)</h3>
-           {blueprint.sections?.map((sec: any, idx: number) => (
-             <div key={idx} className="bg-gray-50 rounded-lg p-4 space-y-2 border">
-                <div className="font-semibold text-gray-800">{sec.sectionName}</div>
-                <div className="text-sm flex justify-between"><span className="text-gray-500">Dạng:</span> <span className="font-medium text-blue-600">{sec.questionType}</span></div>
-                <div className="text-sm flex justify-between"><span className="text-gray-500">Số câu:</span> <span>{sec.questionCount}</span></div>
-                <div className="text-sm flex justify-between"><span className="text-gray-500">Điểm:</span> <span>{sec.totalPoints}</span></div>
-                
-                {sec.sampleQuestionFormat && (
-                  <div className="text-xs mt-2 bg-gray-200 p-2 rounded text-gray-700">
-                    <span className="font-semibold">Mẫu:</span> {sec.sampleQuestionFormat}
+        <Card className="max-h-[600px] flex flex-col">
+           <CardHeader className="pb-4">
+             <CardTitle className="text-lg flex items-center gap-2">
+               <Layers className="size-5 text-primary" />
+               Cấu trúc các phần (Sections)
+             </CardTitle>
+           </CardHeader>
+           <CardContent className="flex-1 overflow-auto space-y-4">
+             {blueprint.sections?.map((sec: any, idx: number) => (
+               <div key={idx} className="bg-muted/50 rounded-lg p-4 space-y-3 border shadow-sm">
+                  <div className="font-semibold text-foreground">{sec.sectionName}</div>
+                  
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div className="space-y-1">
+                      <span className="text-muted-foreground text-xs block">Dạng câu hỏi</span> 
+                      <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5">{sec.questionType}</Badge>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <span className="text-muted-foreground text-xs block">Số câu</span> 
+                        <span className="font-medium">{sec.questionCount}</span>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-muted-foreground text-xs block">Tổng điểm</span> 
+                        <span className="font-medium">{sec.totalPoints}</span>
+                      </div>
+                    </div>
                   </div>
-                )}
-             </div>
-           ))}
-        </div>
+                  
+                  {sec.sampleQuestionFormat && (
+                    <div className="text-xs mt-3 bg-background p-3 rounded-md text-muted-foreground border">
+                      <span className="font-semibold text-foreground block mb-1">Ví dụ/Định dạng:</span> 
+                      {sec.sampleQuestionFormat}
+                    </div>
+                  )}
+               </div>
+             ))}
+           </CardContent>
+        </Card>
       </div>
     </div>
   )

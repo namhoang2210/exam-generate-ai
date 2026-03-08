@@ -2,6 +2,11 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { FileText, Loader2, CheckCircle2, AlertCircle } from "lucide-react"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { Button, buttonVariants } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 
 export default async function GeneratedExamsPage() {
   const supabase = await createClient()
@@ -11,7 +16,6 @@ export default async function GeneratedExamsPage() {
     redirect("/login")
   }
 
-  // Lấy các exam blueprint và generated_exams user đã yêu cầu
   const { data: generatedExams, error } = await supabase
     .from("generated_exams")
     .select(`
@@ -26,53 +30,53 @@ export default async function GeneratedExamsPage() {
   return (
     <div className="space-y-6">
       <div>
-         <h1 className="text-2xl font-bold tracking-tight text-gray-900">Đề thi đã sinh bởi AI</h1>
-         <p className="text-gray-500 mt-1">Lịch sử và trạng thái sinh đề thi từ các bản thiết kế.</p>
+         <h1 className="text-3xl font-bold tracking-tight text-foreground">Đề thi đã sinh bởi AI</h1>
+         <p className="text-muted-foreground mt-2">Lịch sử và trạng thái sinh đề thi từ các bản thiết kế.</p>
       </div>
 
-      <div className="bg-white rounded-xl border overflow-hidden shadow-sm">
-        {(!generatedExams || generatedExams.length === 0) && (
-           <div className="p-8 text-center text-gray-500">Chưa có đề thi nào được tự động tạo.</div>
-        )}
-
-        {generatedExams && generatedExams.length > 0 && (
-          <table className="w-full text-sm text-left text-gray-500">
-             <thead className="text-xs text-gray-700 bg-gray-50 border-b">
-               <tr>
-                 <th className="px-6 py-3">Đề tham chiếu</th>
-                 <th className="px-6 py-3">Khối</th>
-                 <th className="px-6 py-3">Ngày Tạp</th>
-                 <th className="px-6 py-3">Trạng thái (AI Gen)</th>
-                 <th className="px-6 py-3 text-right">Chi tiết</th>
-               </tr>
-             </thead>
-             <tbody>
+      <Card className="overflow-hidden">
+        {(!generatedExams || generatedExams.length === 0) ? (
+           <div className="flex h-[200px] flex-col items-center justify-center text-center text-muted-foreground p-8">
+             Chưa có đề thi nào được tự động tạo.
+           </div>
+        ) : (
+          <Table>
+             <TableHeader className="bg-muted/50">
+               <TableRow>
+                 <TableHead>Đề tham chiếu</TableHead>
+                 <TableHead>Khối</TableHead>
+                 <TableHead>Ngày Tạo</TableHead>
+                 <TableHead>Trạng thái (AI Gen)</TableHead>
+                 <TableHead className="text-right">Chi tiết</TableHead>
+               </TableRow>
+             </TableHeader>
+             <TableBody>
                {generatedExams.map((gen: any) => (
-                 <tr key={gen.id} className="bg-white border-b hover:bg-gray-50">
-                    <td className="px-6 py-4 font-medium text-gray-900">
+                 <TableRow key={gen.id}>
+                    <TableCell className="font-medium text-foreground">
                        {gen.exam_blueprints?.exams?.title}
-                    </td>
-                    <td className="px-6 py-4">Khối {gen.exam_blueprints?.exams?.grade_level}</td>
-                    <td className="px-6 py-4">{new Date(gen.created_at).toLocaleDateString("vi-VN")}</td>
-                    <td className="px-6 py-4">
-                       {gen.status === "pending" && <span className="flex items-center gap-1 text-yellow-600"><Loader2 className="w-4 h-4 animate-spin"/> Đang chờ...</span>}
-                       {gen.status === "processing" && <span className="flex items-center gap-1 text-blue-600"><Loader2 className="w-4 h-4 animate-spin"/> Đang xử lý</span>}
-                       {gen.status === "completed" && <span className="flex items-center gap-1 text-green-600"><CheckCircle2 className="w-4 h-4"/> Hoàn thành</span>}
-                       {gen.status === "failed" && <span className="flex items-center gap-1 text-red-600"><AlertCircle className="w-4 h-4"/> Thất bại</span>}
-                    </td>
-                    <td className="px-6 py-4 text-right">
+                    </TableCell>
+                    <TableCell><Badge variant="secondary" className="font-normal rounded-sm">Khối {gen.exam_blueprints?.exams?.grade_level}</Badge></TableCell>
+                    <TableCell className="text-muted-foreground">{new Date(gen.created_at).toLocaleDateString("vi-VN")}</TableCell>
+                    <TableCell>
+                       {gen.status === "pending" && <Badge variant="outline" className="text-yellow-600 border-yellow-200 bg-yellow-50"><Loader2 className="w-3 h-3 animate-spin mr-1"/> Đang chờ</Badge>}
+                       {gen.status === "processing" && <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50"><Loader2 className="w-3 h-3 animate-spin mr-1"/> Đang xử lý</Badge>}
+                       {gen.status === "completed" && <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50"><CheckCircle2 className="w-3 h-3 mr-1"/> Hoàn thành</Badge>}
+                       {gen.status === "failed" && <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1"/> Thất bại</Badge>}
+                    </TableCell>
+                    <TableCell className="text-right">
                        {gen.status === "completed" && (
-                         <Link href={`/dashboard/exams/${gen.id}`} className="font-medium text-blue-600 hover:text-blue-800 flex items-center justify-end gap-1">
+                         <Link href={`/dashboard/exams/${gen.id}`} className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "text-primary gap-2")}>
                             <FileText className="w-4 h-4" /> Xem đề thi
                          </Link>
                        )}
-                    </td>
-                 </tr>
+                    </TableCell>
+                 </TableRow>
                ))}
-             </tbody>
-          </table>
+             </TableBody>
+          </Table>
         )}
-      </div>
+      </Card>
     </div>
   )
 }

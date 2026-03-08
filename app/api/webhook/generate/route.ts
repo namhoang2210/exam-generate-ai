@@ -3,17 +3,16 @@ import { verifySignatureAppRouter } from "@upstash/qstash/dist/nextjs"
 import { createClient } from "@supabase/supabase-js"
 import { GoogleGenAI } from "@google/genai"
 
-export const maxDuration = 60 // Allow Vercel Function to run longer if using Hobby/Pro
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
-
-// Sử dụng service_role_key để bypass RLS (vì webhook chạy ở background, không có session user)
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+export const maxDuration = 60
+export const dynamic = 'force-dynamic'
 
 async function handler(req: Request) {
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! })
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
   const payload = await req.json()
   const { blueprintId, gradeLevel, generatedExamId } = payload
 

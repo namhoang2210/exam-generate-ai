@@ -3,40 +3,46 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { login } from "./actions"
+import { signup } from "../login/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { GraduationCap, LogIn, AlertCircle } from "lucide-react"
+import { GraduationCap, UserPlus, AlertCircle, ArrowLeft, CheckCircle2 } from "lucide-react"
 import Link from "next/link"
-import { loginSchema, type LoginValues } from "@/lib/auth-schema"
+import { registerSchema, type RegisterValues } from "@/lib/auth-schema"
 import { cn } from "@/lib/utils"
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [isPending, setIsPending] = useState(false)
 
-  const form = useForm<LoginValues>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<RegisterValues>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       email: "",
       password: "",
+      confirmPassword: "",
     },
   })
 
-  async function onSubmit(values: LoginValues) {
+  async function onSubmit(values: RegisterValues) {
     setIsPending(true)
     setError(null)
+    setSuccess(null)
     
     try {
       const formData = new FormData()
       formData.append("email", values.email)
       formData.append("password", values.password)
       
-      const result = await login(formData)
+      const result = await signup(formData)
       if (result?.error) {
         setError(result.error)
+      } else if (result?.success) {
+        setSuccess(result.success)
+        form.reset()
       }
     } catch (e) {
       setError("Có lỗi xảy ra, vui lòng thử lại.")
@@ -62,7 +68,7 @@ export default function LoginPage() {
         
         <Card className="shadow-2xl border-zinc-100/50 bg-white/70 backdrop-blur-xl rounded-[2.5rem] overflow-hidden">
           <CardHeader className="pt-8 pb-4 text-center">
-            <CardTitle className="text-xl font-black uppercase tracking-tight">Xác thực hệ thống</CardTitle>
+            <CardTitle className="text-xl font-black uppercase tracking-tight">Tạo tài khoản giáo viên</CardTitle>
           </CardHeader>
           <CardContent className="px-10 pb-8 flex flex-col gap-6">
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
@@ -70,6 +76,13 @@ export default function LoginPage() {
                 <div className="p-4 text-xs font-bold text-destructive bg-destructive/5 rounded-2xl border border-destructive/10 text-center flex items-center justify-center gap-2 animate-in fade-in zoom-in duration-300">
                   <AlertCircle className="size-4" />
                   {error}
+                </div>
+              )}
+
+              {success && (
+                <div className="p-4 text-xs font-bold text-emerald-600 bg-emerald-50 rounded-2xl border border-emerald-100 text-center flex items-center justify-center gap-2 animate-in fade-in zoom-in duration-300">
+                  <CheckCircle2 className="size-4" />
+                  {success}
                 </div>
               )}
               
@@ -93,10 +106,7 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-2.5">
-                <div className="flex items-center justify-between ml-1">
-                  <Label htmlFor="password" className="text-xs font-black uppercase tracking-widest text-zinc-500">Mật khẩu</Label>
-                  <a href="#" className="text-xs font-bold text-primary hover:underline">Quên mật khẩu?</a>
-                </div>
+                <Label htmlFor="password" className="text-xs font-black uppercase tracking-widest ml-1 text-zinc-500">Mật khẩu</Label>
                 <div className="space-y-1">
                   <Input
                     {...form.register("password")}
@@ -112,6 +122,24 @@ export default function LoginPage() {
                   )}
                 </div>
               </div>
+
+              <div className="space-y-2.5">
+                <Label htmlFor="confirmPassword" className="text-xs font-black uppercase tracking-widest ml-1 text-zinc-500">Xác nhận mật khẩu</Label>
+                <div className="space-y-1">
+                  <Input
+                    {...form.register("confirmPassword")}
+                    id="confirmPassword"
+                    type="password"
+                    className={cn(
+                      "rounded-2xl border-zinc-100 bg-zinc-50/50 h-12 focus-visible:ring-primary/20 focus-visible:border-primary/50 transition-all font-medium px-4",
+                      form.formState.errors.confirmPassword && "border-destructive/50 bg-destructive/5"
+                    )}
+                  />
+                  {form.formState.errors.confirmPassword && (
+                    <p className="text-[10px] font-bold text-destructive ml-1 uppercase">{form.formState.errors.confirmPassword.message}</p>
+                  )}
+                </div>
+              </div>
               
               <div className="flex flex-col gap-4 pt-4">
                 <Button 
@@ -122,9 +150,9 @@ export default function LoginPage() {
                   {isPending ? (
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                   ) : (
-                    <LogIn className="size-4" />
+                    <UserPlus className="size-4" />
                   )}
-                  {isPending ? "Đang kết nối..." : "Đăng nhập ngay"}
+                  {isPending ? "Đang xử lý..." : "Đăng ký ngay"}
                 </Button>
                 
                 <div className="relative py-2">
@@ -132,15 +160,16 @@ export default function LoginPage() {
                     <span className="w-full border-t border-zinc-100"></span>
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white/0 backdrop-blur-none px-2 text-zinc-400 font-bold">Bạn chưa có tài khoản?</span>
+                    <span className="bg-white/0 backdrop-blur-none px-2 text-zinc-400 font-bold">Đã có tài khoản?</span>
                   </div>
                 </div>
 
                 <Link 
-                  href="/register" 
+                  href="/login" 
                   className="w-full h-12 rounded-2xl flex items-center justify-center gap-2 font-black uppercase tracking-widest border border-zinc-100 bg-white hover:bg-zinc-50 hover:scale-[1.02] active:scale-[0.98] transition-all text-sm"
                 >
-                  Đăng ký giáo viên
+                  <ArrowLeft className="size-4" />
+                  Quay lại đăng nhập
                 </Link>
               </div>
             </form>
