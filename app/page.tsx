@@ -45,7 +45,7 @@ export default function Home() {
               Cách mạng hóa <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-indigo-600 to-violet-600">tạo đề thi</span> Tiếng Anh
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-5 duration-1000">
-              Phân tích cấu trúc từ đề mẫu và sinh ra hàng nghìn đề thi tương đương chỉ trong vài giây với sức mạnh của Gemini AI 2.5 Flash Lite.
+              Phân tích cấu trúc từ đề mẫu và sinh ra hàng nghìn đề thi tương đương chỉ trong vài giây với sức mạnh của AI.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 animate-in fade-in slide-in-from-bottom-6 duration-1000">
               <Link href="/login" className={cn(buttonVariants({ size: "lg" }), "rounded-full px-8 text-lg font-bold h-14 shadow-xl shadow-primary/20 group")}>
@@ -151,8 +151,8 @@ export default function Home() {
                 <p className="text-zinc-400 max-w-xl mx-auto text-lg leading-relaxed">
                   Gia nhập cộng đồng giáo viên hiện đại, sử dụng công nghệ để nâng cao chất lượng giảng dạy.
                 </p>
-                <Link 
-                  href="/login" 
+                <Link
+                  href="/login"
                   className="inline-flex items-center justify-center rounded-full px-10 h-14 text-lg font-bold bg-white text-zinc-900 mt-4 shadow-xl shadow-white/20 transition-all hover:scale-105 active:scale-95 hover:bg-white hover:text-zinc-900"
                 >
                   Đăng ký miễn phí

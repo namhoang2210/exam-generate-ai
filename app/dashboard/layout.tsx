@@ -6,6 +6,8 @@ import { LayoutDashboard, FileUp, Files, LogOut, GraduationCap, Menu } from "luc
 import { Button, buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
+import { UserNav } from "@/components/dashboard/user-nav"
+
 export default async function DashboardLayout({
   children,
 }: {
@@ -41,7 +43,7 @@ export default async function DashboardLayout({
           </Link>
         </div>
         
-        <div className="flex-1 space-y-8 flex flex-col">
+        <div className="flex-1 space-y-8 flex flex-col overflow-y-auto pr-2 custom-scrollbar">
           <div>
             <p className="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-4">Điều hướng chính</p>
             <nav className="space-y-1.5">
@@ -71,27 +73,10 @@ export default async function DashboardLayout({
         </div>
         
         <div className="pt-6 mt-auto">
-          <div className="p-4 rounded-[2rem] bg-zinc-50 border border-zinc-100 mb-4 relative overflow-hidden group">
-             <div className="absolute top-0 right-0 w-16 h-16 bg-indigo-100/50 rounded-full blur-2xl -z-10" />
-             <div className="flex items-center gap-3 relative z-10">
-                <div className="flex size-10 items-center justify-center rounded-2xl bg-white border border-zinc-200 shadow-sm text-indigo-600 font-black">
-                   {profile?.full_name?.[0] || user.email?.[0].toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-black truncate">{profile?.full_name || user.email?.split("@")[0]}</p>
-                  <p className="text-[10px] text-zinc-400 font-bold truncate uppercase tracking-widest leading-none mt-0.5">{user.email}</p>
-                </div>
-             </div>
-          </div>
-          
-          <form action={logout}>
-            <Button variant="ghost" className="w-full justify-start gap-4 h-12 rounded-2xl font-bold text-zinc-500 hover:text-destructive hover:bg-destructive/5 transition-all group" type="submit">
-              <LogOut className="size-5 text-zinc-300 group-hover:text-destructive transition-colors" />
-              Đăng xuất
-            </Button>
-          </form>
+          <UserNav user={user} profile={profile} />
         </div>
       </aside>
+
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-h-screen relative z-10 h-screen overflow-y-auto">
