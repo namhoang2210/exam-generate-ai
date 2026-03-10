@@ -33,7 +33,7 @@ export default async function DashboardLayout({
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-100/30 rounded-full blur-[120px] -z-10 pointer-events-none" />
 
       {/* Sidebar Desktop */}
-      <aside className="w-72 flex-col border-r border-zinc-100 bg-white/70 backdrop-blur-xl px-6 py-8 hidden md:flex h-screen sticky top-0 z-20">
+      <aside className="w-72 flex-col border-r border-zinc-100 bg-white/70 backdrop-blur-xl px-6 py-4 hidden md:flex h-screen sticky top-0 z-20">
         <div className="flex items-center gap-3 px-2 pb-8 mb-4">
           <Link href="/" className="flex items-center gap-2 group transition-all">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-indigo-600 to-blue-600 text-white shadow-lg shadow-indigo-200 group-hover:scale-110 transition-transform">
@@ -42,27 +42,27 @@ export default async function DashboardLayout({
             <span className="text-xl font-black tracking-tighter uppercase bg-clip-text text-transparent bg-linear-to-r from-indigo-600 to-blue-600">ExamGen AI</span>
           </Link>
         </div>
-        
+
         <div className="flex-1 space-y-8 flex flex-col overflow-y-auto pr-2 custom-scrollbar">
           <div>
-            <p className="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-4">Điều hướng chính</p>
+            <p className="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-4">Menu</p>
             <nav className="space-y-1.5">
               <Link href="/dashboard" className={cn(
-                buttonVariants({ variant: "ghost" }), 
+                buttonVariants({ variant: "ghost" }),
                 "justify-start gap-4 w-full h-12 rounded-2xl font-bold transition-all hover:bg-indigo-50/50 hover:text-indigo-600 group active:scale-[0.98]"
               )}>
                 <LayoutDashboard className="size-5 text-zinc-400 group-hover:text-indigo-600 transition-colors" />
                 Tổng quan
               </Link>
               <Link href="/dashboard/upload" className={cn(
-                buttonVariants({ variant: "ghost" }), 
+                buttonVariants({ variant: "ghost" }),
                 "justify-start gap-4 w-full h-12 rounded-2xl font-bold transition-all hover:bg-indigo-50/50 hover:text-indigo-600 group active:scale-[0.98]"
               )}>
                 <FileUp className="size-5 text-zinc-400 group-hover:text-indigo-600 transition-colors" />
                 Upload Đề Mẫu
               </Link>
               <Link href="/dashboard/exams" className={cn(
-                buttonVariants({ variant: "ghost" }), 
+                buttonVariants({ variant: "ghost" }),
                 "justify-start gap-4 w-full h-12 rounded-2xl font-bold transition-all hover:bg-indigo-50/50 hover:text-indigo-600 group active:scale-[0.98]"
               )}>
                 <Files className="size-5 text-zinc-400 group-hover:text-indigo-600 transition-colors" />
@@ -71,7 +71,7 @@ export default async function DashboardLayout({
             </nav>
           </div>
         </div>
-        
+
         <div className="pt-6 mt-auto">
           <UserNav user={user} profile={profile} />
         </div>
@@ -92,9 +92,9 @@ export default async function DashboardLayout({
             <span className="text-lg font-black tracking-tighter uppercase bg-clip-text text-transparent bg-linear-to-r from-indigo-600 to-blue-600">ExamGen AI</span>
           </div>
           <div className="ml-auto">
-             <form action={logout}>
-                <Button variant="ghost" size="sm" type="submit" className="text-[10px] font-black uppercase tracking-widest text-destructive hover:bg-destructive/5 rounded-full px-4 border border-destructive/10">Log out</Button>
-             </form>
+            <form action={logout}>
+              <Button variant="ghost" size="sm" type="submit" className="text-[10px] font-black uppercase tracking-widest text-destructive hover:bg-destructive/5 rounded-full px-4 border border-destructive/10">Log out</Button>
+            </form>
           </div>
         </header>
 
