@@ -28,21 +28,19 @@ export default function LoginPage() {
   async function onSubmit(values: LoginValues) {
     setIsPending(true)
     setError(null)
+
+    const formData = new FormData()
+    formData.append("email", values.email)
+    formData.append("password", values.password)
+
+    const result = await login(formData)
     
-    try {
-      const formData = new FormData()
-      formData.append("email", values.email)
-      formData.append("password", values.password)
-      
-      const result = await login(formData)
-      if (result?.error) {
-        setError(result.error)
-      }
-    } catch (e) {
-      setError("Có lỗi xảy ra, vui lòng thử lại.")
-    } finally {
+    if (result?.error) {
+      setError(result.error)
       setIsPending(false)
     }
+    // Nếu thành công, redirect() trong Server Action sẽ tự chuyển hướng
+    // Chúng ta không gọi setIsPending(false) ở đây vì trang sẽ chuyển hướng
   }
 
   return (
@@ -59,7 +57,7 @@ export default function LoginPage() {
             <span className="text-2xl font-black tracking-tighter uppercase bg-clip-text text-transparent bg-linear-to-r from-indigo-600 to-blue-600">ExamGen AI</span>
           </Link>
         </div>
-        
+
         <Card className="shadow-2xl border-zinc-100/50 bg-white/70 backdrop-blur-xl rounded-[2.5rem] overflow-hidden">
           <CardHeader className="pt-8 pb-4 text-center">
             <CardTitle className="text-xl font-black uppercase tracking-tight">Xác thực hệ thống</CardTitle>
@@ -72,7 +70,7 @@ export default function LoginPage() {
                   {error}
                 </div>
               )}
-              
+
               <div className="space-y-2.5">
                 <Label htmlFor="email" className="text-xs font-black uppercase tracking-widest ml-1 text-zinc-500">Email Address</Label>
                 <div className="space-y-1">
@@ -112,9 +110,9 @@ export default function LoginPage() {
                   )}
                 </div>
               </div>
-              
+
               <div className="flex flex-col gap-4 pt-4">
-                <Button 
+                <Button
                   type="submit"
                   disabled={isPending}
                   className="w-full h-12 rounded-2xl flex gap-2 font-black uppercase tracking-widest shadow-lg shadow-primary/20 group hover:scale-[1.02] active:scale-[0.98] transition-all"
@@ -126,7 +124,7 @@ export default function LoginPage() {
                   )}
                   {isPending ? "Đang kết nối..." : "Đăng nhập ngay"}
                 </Button>
-                
+
                 <div className="relative py-2">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t border-zinc-100"></span>
@@ -136,8 +134,8 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                <Link 
-                  href="/register" 
+                <Link
+                  href="/register"
                   className="w-full h-12 rounded-2xl flex items-center justify-center gap-2 font-black uppercase tracking-widest border border-zinc-100 bg-white hover:bg-zinc-50 hover:scale-[1.02] active:scale-[0.98] transition-all text-sm"
                 >
                   Đăng ký giáo viên
@@ -151,7 +149,7 @@ export default function LoginPage() {
             </p>
           </CardFooter>
         </Card>
-        
+
         <p className="text-center text-xs text-zinc-500 font-medium">
           © {new Date().getFullYear()} ExamGen AI. Professional Teacher Tools.
         </p>

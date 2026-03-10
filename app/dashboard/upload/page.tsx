@@ -15,40 +15,41 @@ export default function UploadPage() {
   )
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Upload đề mẫu</h1>
-        <p className="text-muted-foreground mt-2">Hệ thống sẽ phân tích cấu trúc từ đề thi tải lên (PDF/DOCX) và tạo ra bản thiết kế Blueprint.</p>
+    <div className="max-w-4xl mx-auto space-y-10">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-4xl font-black tracking-tight uppercase text-zinc-900">Upload đề mẫu</h1>
+        <p className="text-zinc-500 font-medium">Hệ thống sẽ phân tích cấu trúc từ đề thi tải lên (PDF/DOCX) và tạo ra bản thiết kế Blueprint bằng AI.</p>
       </div>
 
-      <Card className="shadow-sm">
-        <CardContent className="p-6">
-          <form action={formAction} className="space-y-6">
+      <Card className="rounded-[2.5rem] border-zinc-100 shadow-2xl shadow-indigo-500/5 bg-white/70 backdrop-blur-xl overflow-hidden">
+        <CardContent className="p-10">
+          <form action={formAction} className="space-y-8">
             {state?.error && (
-              <div className="p-3 bg-destructive/10 text-destructive rounded-md text-sm border border-destructive/20 font-medium">
+              <div className="p-4 bg-destructive/5 text-destructive rounded-2xl text-xs border border-destructive/10 font-bold uppercase tracking-widest text-center animate-in fade-in zoom-in duration-300">
                 {state.error}
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="title">Tên đề thi</Label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-3">
+                <Label htmlFor="title" className="text-xs font-black uppercase tracking-widest ml-1 text-zinc-500">Tên đề thi</Label>
                 <Input
                   id="title"
                   type="text"
                   name="title"
                   required
                   placeholder="VD: Đề thi Giữa kì 1 Tiếng Anh 6"
+                  className="rounded-2xl border-zinc-100 bg-zinc-50/50 h-12 focus-visible:ring-indigo-500/20 focus-visible:border-indigo-500/50 transition-all font-medium px-4"
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="grade">Khối lớp (Grade)</Label>
+              <div className="space-y-3">
+                <Label htmlFor="grade" className="text-xs font-black uppercase tracking-widest ml-1 text-zinc-500">Khối lớp (Grade)</Label>
                 <select 
                   id="grade"
                   name="grade" 
                   required
-                  className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-12 w-full items-center justify-between rounded-2xl border border-zinc-100 bg-zinc-50/50 px-4 py-2 text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 disabled:cursor-not-allowed disabled:opacity-50 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-size-[1.2em] bg-position-[right_1rem_center] bg-no-repeat"
                   defaultValue="6"
                 >
                   <option value="6">Khối 6</option>
@@ -59,43 +60,38 @@ export default function UploadPage() {
               </div>
             </div>
 
-            <div className="space-y-2 pt-2">
-              <Label htmlFor="file-upload">File đề thi (PDF, DOCX)</Label>
-              <div className="mt-2 flex justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 px-6 py-12 transition-colors hover:border-muted-foreground/50 bg-muted/10">
-                <div className="text-center">
-                  <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary/10">
-                    <FileType2 className="size-6 text-primary" aria-hidden="true" />
+            <div className="space-y-3 pt-2">
+              <Label htmlFor="file-upload" className="text-xs font-black uppercase tracking-widest ml-1 text-zinc-500">File đề thi (PDF, DOCX)</Label>
+              <div className="mt-2 flex justify-center rounded-[2rem] border-2 border-dashed border-zinc-200 px-6 py-16 transition-all hover:border-indigo-400 hover:bg-indigo-50/30 group cursor-pointer relative">
+                <input id="file-upload" name="file" type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept=".pdf,.doc,.docx" required />
+                <div className="text-center relative z-0">
+                  <div className="mx-auto flex size-16 items-center justify-center rounded-[1.5rem] bg-indigo-50 text-indigo-600 group-hover:scale-110 transition-transform duration-300 shadow-sm border border-indigo-100/50">
+                    <Upload className="size-8" aria-hidden="true" />
                   </div>
-                  <div className="mt-4 flex text-sm leading-6 text-muted-foreground justify-center">
-                    <label
-                      htmlFor="file-upload"
-                      className="relative cursor-pointer rounded-md bg-transparent font-semibold text-primary focus-within:outline-none focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 hover:text-primary/80"
-                    >
-                      <span>Tải file lên</span>
-                      <input id="file-upload" name="file" type="file" className="sr-only" accept=".pdf,.doc,.docx" required />
-                    </label>
-                    <p className="pl-1">hoặc kéo thả vào đây</p>
+                  <div className="mt-6 flex text-sm leading-6 text-zinc-600 justify-center font-bold">
+                    <span className="text-indigo-600 hover:underline">Tải file lên</span>
+                    <p className="pl-1 text-zinc-400">hoặc kéo thả vào đây</p>
                   </div>
-                  <p className="text-xs leading-5 text-muted-foreground mt-1">Hỗ trợ định dạng PDF, DOCX tối đa 10MB</p>
+                  <p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mt-2">Hỗ trợ PDF, DOCX tối đa 10MB</p>
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-end pt-4 border-t">
+            <div className="flex justify-end pt-6 border-t border-zinc-100">
               <Button
                 type="submit"
                 disabled={isPending}
-                className="gap-2"
+                className="h-12 px-8 rounded-2xl flex gap-3 font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20 group hover:scale-[1.02] active:scale-[0.98] transition-all bg-linear-to-br from-indigo-600 to-blue-600"
               >
                 {isPending ? (
                   <>
-                    <Loader2 className="size-4 animate-spin" />
+                    <Loader2 className="size-5 animate-spin" />
                     Đang phân tích AI...
                   </>
                 ) : (
                   <>
-                    <Upload className="size-4" />
-                    Phân tích cấu trúc
+                    <FileType2 className="size-5 group-hover:rotate-12 transition-transform" />
+                    Bắt đầu phân tích
                   </>
                 )}
               </Button>
