@@ -1,12 +1,13 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Printer } from "lucide-react"
+import { ArrowLeft, Printer, Loader2 } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
-export default async function ExamDetailPage({ params }: { params: { id: string } }) {
+export default async function ExamDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -23,14 +24,25 @@ export default async function ExamDetailPage({ params }: { params: { id: string 
          exams (title, grade_level)
       )
     `)
-    .eq("id", params.id)
+    .eq("id", id)
     .single()
 
   if (error || !exam || exam.status !== "completed") {
-    return <div className="flex h-[200px] flex-col items-center justify-center text-center text-muted-foreground p-8">Bài thi chưa hoàn thiện hoặc không tồn tại.</div>
+    return (
+      <div className="flex flex-col items-center justify-center p-20 text-center space-y-4">
+        <div className="size-16 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 animate-pulse">
+          <Loader2 className="size-8 animate-spin" />
+        </div>
+        <div className="space-y-1">
+          <h3 className="font-black uppercase tracking-widest text-zinc-900">Đề thi đang được khởi tạo</h3>
+          <p className="text-sm text-zinc-500 font-medium">AI đang làm việc cật lực để sinh câu hỏi cho bạn. Vui lòng đợi trong giây lát.</p>
+        </div>
+        <Button variant="outline" onClick={() => window.location.reload()} className="rounded-xl font-bold uppercase tracking-widest text-[10px]">Làm mới trang</Button>
+      </div>
+    )
   }
 
-  const content = exam.content_json
+  const content = exam.content_json as any
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

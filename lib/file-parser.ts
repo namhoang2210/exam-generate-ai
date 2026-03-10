@@ -1,15 +1,44 @@
-/// <reference types="node" />
-const pdf = require("pdf-parse")
+import { PDFParse } from "pdf-parse"
+import { getData as getPdfWorkerData } from "pdf-parse/worker"
 import mammoth from "mammoth"
 
+let isPdfWorkerConfigured = false
+
+function ensurePdfWorkerConfigured() {
+  if (isPdfWorkerConfigured) {
+    return
+  }
+
+  PDFParse.setWorker(getPdfWorkerData())
+  isPdfWorkerConfigured = true
+}
+
 export async function extractTextFromFile(buffer: Buffer, filename: string, mimeType: string) {
-  if (filename.endsWith('.pdf') || mimeType === 'application/pdf') {
-    const data = await pdf(buffer)
-    return data.text
-  } else if (filename.endsWith('.docx') || mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || mimeType === 'application/msword') {
+  if (filename.endsWith(".pdf") || mimeType === "application/pdf") {
+    ensurePdfWorkerConfigured()
+
+    const parser = new PDFParse({ data: new Uint8Array(buffer) })
+
+    try {
+      const result = await parser.getText()
+      return result.text || ""
+    } catch (error) {
+      console.error("[PDF_PARSE_ERROR]", error)
+      const message = error instanceof Error ? error.message : "Unknown PDF parse error"
+      throw new Error(`Loi khi doc file PDF: ${message}`)
+    } finally {
+      await parser.destroy().catch(() => undefined)
+    }
+  }
+
+  if (
+    filename.endsWith(".docx") ||
+    mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+    mimeType === "application/msword"
+  ) {
     const result = await mammoth.extractRawText({ buffer })
     return result.value
-  } else {
-    throw new Error("Định dạng file không được hỗ trợ. Chỉ hỗ trợ PDF và DOCX.")
   }
+
+  throw new Error("Dinh dang file khong duoc ho tro. Chi ho tro PDF va DOCX.")
 }
